@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendário de Reservas</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Calendário do Laboratório</h1>
+    <nav><a href="index.html">Voltar</a></nav>
+  </header>
+
+  <main>
+    <h2>Reservar Equipamento</h2>
+    <form id="bookingForm">
+      <label>Nome:</label>
+      <input type="text" id="researcherName" required>
+      <label>Contato:</label>
+      <input type="text" id="contact" required>
+      <label>Data Início:</label>
+      <input type="date" id="startDate" required>
+      <label>Data Fim:</label>
+      <input type="date" id="endDate" required>
+      <label>ID do Equipamento:</label>
+      <input type="number" id="equipmentId" required>
+      <button type="submit">Reservar</button>
+    </form>
+
+    <h2>Reservas Existentes</h2>
+    <ul id="bookingList"></ul>
+  </main>
+
+  <script>
+    async function loadBookings() {
+      const res = await fetch('http://localhost:3000/api/bookings');
+      const data = await res.json();
+      const list = document.getElementById('bookingList');
+      list.innerHTML = '';
+      data.forEach(b => {
+        const li = document.createElement('li');
+        li.textContent = `${b.researcherName} reservou equipamento ${b.EquipmentId} de ${b.startDate} até ${b.endDate}`;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const booking = {
+        researcherName: document.getElementById('researcherName').value,
+        contact: document.getElementById('contact').value,
+        startDate: document.getElementById('startDate').value,
+        endDate: document.getElementById('endDate').value,
+        EquipmentId: document.getElementById('equipmentId').value
+      };
+
+      await fetch('http://localhost:3000/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(booking)
+      });
+
+      alert('Reserva feita com sucesso!');
+      loadBookings();
+    });
+
+    document.addEventListener('DOMContentLoaded', loadBookings);
+  </script>
+</body>
+</html>
