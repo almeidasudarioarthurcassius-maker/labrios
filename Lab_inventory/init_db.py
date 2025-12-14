@@ -1,11 +1,11 @@
-from app import app, db, LabInfo # Import LabInfo agora
+from app import app, db, LabInfo 
 import sys
 
 # Script para criar as tabelas no banco de dados e preencher a LabInfo inicial.
 
 try:
     with app.app_context():
-        # Cria as tabelas (incluindo as novas: LabInfo e Reservation atualizada)
+        # Cria as tabelas (incluindo as novas colunas na tabela Reservation e LabInfo)
         db.create_all() 
         print("Tabelas do banco de dados criadas/verificadas com sucesso.")
         
