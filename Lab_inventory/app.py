@@ -20,16 +20,13 @@ if not app.config['SQLALCHEMY_DATABASE_URI']:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
     
 # Correção do prefixo para PostgreSQL (compatibilidade com versões antigas do SQLAlchemy)
-if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
+if app.config['SQLALCHEMY_DATABASE_URI'] and app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
     app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace(
         "postgres://", "postgresql://", 1
     )
 
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 db = SQLAlchemy(app)
-
-# --- ATENÇÃO: db.create_all() FOI REMOVIDO AQUI! ---
-# Agora ele será executado APENAS pelo script init_db.py no build.
 
 # --- Modelos do Banco de Dados ---
 
@@ -66,7 +63,6 @@ def index():
 
 @app.route('/inventory')
 def inventory():
-    # A consulta agora deve funcionar, pois as tabelas serão criadas no passo de build
     equipments = Equipment.query.all()
     return render_template('inventory.html', equipments=equipments)
 
@@ -75,7 +71,7 @@ def reserve(id):
     equipment = Equipment.query.get_or_404(id)
     
     if request.method == 'POST':
-        if equipment.quantity <= 0:
+        if equipment.quantity is None or equipment.quantity <= 0: # Adicionei checagem para None
             return f"O equipamento {equipment.name} não está disponível para reserva no momento.", 400
 
         r = Reservation(
@@ -132,7 +128,13 @@ def admin():
                 filename = None
 
             # 2. Cadastro do Equipamento
-            quantity = int(request.form.get('quantity', 0))
+            # Usando .get() para evitar erro se o campo estiver vazio
+            quantity_str = request.form.get('quantity')
+            if not quantity_str:
+                quantity = 0
+            else:
+                quantity = int(quantity_str)
+                
             if quantity < 0:
                  raise ValueError("A quantidade não pode ser negativa.")
 
@@ -205,6 +207,5 @@ def delete_reservation(id):
 # --- Inicialização da Aplicação ---
 
 if __name__ == '__main__':
-    # Usado apenas para rodar em ambiente local de desenvolvimento
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
