@@ -1,25 +1,54 @@
-<h2>{{ info.lab_name }}</h2>
+{% extends "base.html" %}
 
-<p>
-    **Afiliação:** {{ info.affiliation }}
-</p>
+{% block title %}Página Inicial - LABRIOS{% endblock %}
 
-<h3>Coordenador: {{ info.coordinator_name }}</h3>
-<ul>
-    <li>Email: {{ info.coordinator_email }}</li>
-    <li>Lattes: <a href="{{ info.coordinator_lattes }}" target="_blank">{{ info.coordinator_lattes }}</a></li>
-</ul>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        
+        <h1 class="text-center mb-4">LABRIOS</h1>
+        <p class="text-center lead">Site de exibição e reserva de equipamentos do laboratório.</p>
 
-<h3>Localização</h3>
-<p>
-    **Unidade:** {{ info.location }}<br>
-    **Endereço:** {{ info.address }}
-</p>
+        <div class="card shadow-sm p-4 mb-5 border-custom-blue">
+            <div class="card-body">
+                <h4 class="card-title">{{ info.lab_name }}</h4>
+                <p><strong>Vínculo:</strong> {{ info.affiliation }}</p>
+                <hr>
+                
+                <p><strong>Coordenador:</strong> {{ info.coordinator_name }}</p>
+                <p><strong>Email:</strong> <a href="mailto:{{ info.coordinator_email }}">{{ info.coordinator_email }}</a></p>
+                
+                {% if info.coordinator_lattes %}
+                    <p><strong>Lattes:</strong> <a href="{{ info.coordinator_lattes }}" target="_blank">Acessar Lattes</a></p>
+                {% endif %}
 
-{% if session.get('admin') %}
-    <div class="mt-4">
-        <a href="{{ url_for('edit_info') }}" class="btn btn-warning">
-            <i class="fa fa-edit"></i> Editar Informações de Contato
-        </a>
+                {% if session.get('admin') %}
+                    <a href="{{ url_for('edit_info') }}" class="btn btn-warning btn-sm mt-3">
+                        <i class="fas fa-edit"></i> Editar Informações de Contato
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row text-center">
+            <div class="col-md-6 mb-3">
+                <a href="{{ url_for('inventory') }}" class="btn btn-custom-blue btn-lg w-100 py-3">
+                    <i class="fas fa-box-open"></i> INVENTÁRIO
+                </a>
+            </div>
+            <div class="col-md-6 mb-3">
+                {% if session.get('admin') %}
+                    <a href="{{ url_for('admin') }}" class="btn btn-dark btn-lg w-100 py-3">
+                        <i class="fas fa-user-shield"></i> ÁREA ADMIN
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg w-100 py-3">
+                        <i class="fas fa-sign-in-alt"></i> LOGIN
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
     </div>
-{% endif %}
+</div>
+{% endblock %}
