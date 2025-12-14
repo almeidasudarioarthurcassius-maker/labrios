@@ -15,11 +15,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
-# Se não houver variável de ambiente, usa SQLite como fallback (para desenvolvimento local)
 if not app.config['SQLALCHEMY_DATABASE_URI']:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
     
-# Correção do prefixo para PostgreSQL (compatibilidade com versões antigas do SQLAlchemy)
 if app.config['SQLALCHEMY_DATABASE_URI'] and app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
     app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace(
         "postgres://", "postgresql://", 1
@@ -49,17 +47,31 @@ class Reservation(db.Model):
     institution = db.Column(db.String(100))
     role = db.Column(db.String(100))
     date = db.Column(db.String(20), nullable=False)
+    # NOVOS CAMPOS SOLICITADOS PELO USUÁRIO EXTERNO
+    user_email = db.Column(db.String(100), nullable=False)
+    user_phone = db.Column(db.String(50))
+    lattes_link = db.Column(db.String(255))
 
+
+class LabInfo(db.Model):
+    __tablename__ = 'lab_info'
+    # Esta tabela armazena os dados de contato do laboratório, com apenas 1 registro (id=1)
+    id = db.Column(db.Integer, primary_key=True) 
+    lab_name = db.Column(db.String(255))
+    affiliation = db.Column(db.String(255))
+    coordinator_name = db.Column(db.String(100))
+    coordinator_email = db.Column(db.String(100))
+    coordinator_lattes = db.Column(db.String(255))
+    location = db.Column(db.String(255))
+    address = db.Column(db.String(255))
 
 # --- Rotas Públicas ---
 
 @app.route('/')
 def index():
-    coordenator_info = {
-        'name': 'Nome do Coordenador',
-        'email': 'email@institucional'
-    }
-    return render_template('index.html', info=coordenator_info)
+    # Obtém as informações do laboratório do banco de dados (o registro com id=1 é o padrão)
+    lab_info = LabInfo.query.first()
+    return render_template('index.html', info=lab_info)
 
 @app.route('/inventory')
 def inventory():
@@ -71,7 +83,7 @@ def reserve(id):
     equipment = Equipment.query.get_or_404(id)
     
     if request.method == 'POST':
-        if equipment.quantity is None or equipment.quantity <= 0: # Adicionei checagem para None
+        if equipment.quantity is None or equipment.quantity <= 0:
             return f"O equipamento {equipment.name} não está disponível para reserva no momento.", 400
 
         r = Reservation(
@@ -79,11 +91,16 @@ def reserve(id):
             user_name=request.form.get('name'),
             institution=request.form.get('institution'),
             role=request.form.get('role'),
-            date=request.form.get('date')
+            date=request.form.get('date'),
+            # NOVOS DADOS
+            user_email=request.form.get('email'),
+            user_phone=request.form.get('phone'),
+            lattes_link=request.form.get('lattes_link')
         )
         
-        if not all([r.user_name, r.institution, r.role, r.date]):
-             return "Todos os campos da reserva devem ser preenchidos.", 400
+        # Validação aprimorada, garantindo que o email é obrigatório
+        if not all([r.user_name, r.institution, r.role, r.date, r.user_email]):
+             return "Campos obrigatórios (Nome, Instituição, Cargo, Data, Email) devem ser preenchidos.", 400
 
         db.session.add(r)
         db.session.commit()
@@ -128,7 +145,6 @@ def admin():
                 filename = None
 
             # 2. Cadastro do Equipamento
-            # Usando .get() para evitar erro se o campo estiver vazio
             quantity_str = request.form.get('quantity')
             if not quantity_str:
                 quantity = 0
@@ -158,9 +174,38 @@ def admin():
             
     # GET: Exibe a interface de admin
     equipments = Equipment.query.all()
-    reservations = Reservation.query.all()
+    # Puxa todas as reservas, incluindo os novos campos de contato
+    reservations = Reservation.query.all() 
     
     return render_template('admin.html', equipments=equipments, reservations=reservations)
+
+
+@app.route('/admin/edit_info', methods=['GET', 'POST'])
+def edit_info():
+    # Rota para editar as informações de contato do laboratório
+    if not session.get('admin'):
+        return redirect(url_for('login'))
+    
+    # Obtém o único registro de LabInfo. Ele é garantido pelo init_db.py
+    info = LabInfo.query.first()
+    
+    if request.method == 'POST':
+        if info:
+            info.lab_name = request.form.get('lab_name')
+            info.affiliation = request.form.get('affiliation')
+            info.coordinator_name = request.form.get('coordinator_name')
+            info.coordinator_email = request.form.get('coordinator_email')
+            info.coordinator_lattes = request.form.get('coordinator_lattes')
+            info.location = request.form.get('location')
+            info.address = request.form.get('address')
+            
+            db.session.commit()
+            return redirect(url_for('index'))
+        else:
+            return "Erro: Informações do Laboratório não encontradas. Tente refazer o deploy.", 500
+            
+    # GET: Exibe o formulário de edição (você precisará criar este template)
+    return render_template('edit_info.html', info=info)
 
 
 @app.route('/delete/<int:id>', methods=['POST'])
@@ -174,7 +219,6 @@ def delete_equipment(id):
         db.session.delete(equipment)
         db.session.commit()
         
-        # Excluir imagem
         if equipment.image:
             img_path = os.path.join(app.config['UPLOAD_FOLDER'], equipment.image)
             if os.path.exists(img_path):
