@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'default-secret-key-MUDAR-DEPOIS')
 
 # Configuração do Banco de Dados (PostgreSQL para Render, SQLite para Local)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Boa prática para Flask-SQLAlchemy
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
@@ -28,16 +28,8 @@ if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 db = SQLAlchemy(app)
 
-# --- Criação das Tabelas do Banco de Dados (NOVA CORREÇÃO) ---
-# Este bloco garante que as tabelas sejam criadas no PostgreSQL quando o Gunicorn iniciar o app.
-with app.app_context():
-    try:
-        db.create_all()
-        # Não é necessário imprimir no console do Render, mas ajuda no log
-        print("Tabelas do banco de dados verificadas/criadas com sucesso.")
-    except Exception as e:
-        print(f"Erro ao criar tabelas no PostgreSQL: {e}")
-
+# --- ATENÇÃO: db.create_all() FOI REMOVIDO AQUI! ---
+# Agora ele será executado APENAS pelo script init_db.py no build.
 
 # --- Modelos do Banco de Dados ---
 
@@ -66,7 +58,6 @@ class Reservation(db.Model):
 
 @app.route('/')
 def index():
-    # Estas informações podem ser editadas ou lidas de uma tabela de configurações no futuro
     coordenator_info = {
         'name': 'Nome do Coordenador',
         'email': 'email@institucional'
@@ -75,7 +66,7 @@ def index():
 
 @app.route('/inventory')
 def inventory():
-    # Esta consulta estava falhando por causa da falta de tabelas
+    # A consulta agora deve funcionar, pois as tabelas serão criadas no passo de build
     equipments = Equipment.query.all()
     return render_template('inventory.html', equipments=equipments)
 
@@ -178,7 +169,6 @@ def delete_equipment(id):
     equipment = Equipment.query.get_or_404(id)
     
     try:
-        # As reservas relacionadas serão excluídas automaticamente devido ao cascade="all, delete-orphan"
         db.session.delete(equipment)
         db.session.commit()
         
@@ -213,11 +203,8 @@ def delete_reservation(id):
 
 
 # --- Inicialização da Aplicação ---
-# O Gunicorn usará o objeto 'app' diretamente, executando o código acima,
-# incluindo o bloco db.create_all() que agora está fora do if __name__.
 
 if __name__ == '__main__':
     # Usado apenas para rodar em ambiente local de desenvolvimento
     port = int(os.environ.get('PORT', 5000))
-    # Note que db.create_all() já foi chamado acima.
     app.run(host='0.0.0.0', port=port, debug=True)
