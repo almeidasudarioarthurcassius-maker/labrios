@@ -2,53 +2,55 @@
 {% block title %}Editar Informações do LABRIOS{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>Editar Informações do Laboratório</h2>
-    
-    <form method="POST">
-        <div class="card p-4 mb-4">
-            <h4>Informações Gerais</h4>
-            <div class="form-group">
-                <label for="lab_name">Nome do Laboratório</label>
-                <input type="text" class="form-control" id="lab_name" name="lab_name" value="{{ info.lab_name }}">
-            </div>
-            <div class="form-group">
-                <label for="affiliation">Afiliação/Vínculo</label>
-                <input type="text" class="form-control" id="affiliation" name="affiliation" value="{{ info.affiliation }}">
-            </div>
-        </div>
-
-        <div class="card p-4 mb-4">
-            <h4>Informações do Coordenador</h4>
-            <div class="form-group">
-                <label for="coordinator_name">Nome do Coordenador</label>
-                <input type="text" class="form-control" id="coordinator_name" name="coordinator_name" value="{{ info.coordinator_name }}">
-            </div>
-            <div class="form-group">
-                <label for="coordinator_email">Email do Coordenador</label>
-                <input type="email" class="form-control" id="coordinator_email" name="coordinator_email" value="{{ info.coordinator_email }}">
-            </div>
-            <div class="form-group">
-                <label for="coordinator_lattes">Link do Lattes</label>
-                <input type="url" class="form-control" id="coordinator_lattes" name="coordinator_lattes" value="{{ info.coordinator_lattes }}">
-            </div>
-        </div>
-
-        <div class="card p-4 mb-4">
-            <h4>Localização</h4>
-            <div class="form-group">
-                <label for="location">Localização (Unidade)</label>
-                <input type="text" class="form-control" id="location" name="location" value="{{ info.location }}">
-            </div>
-            <div class="form-group">
-                <label for="address">Endereço Completo</label>
-                <textarea class="form-control" id="address" name="address" rows="3">{{ info.address }}</textarea>
-            </div>
-        </div>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <h2>Editar Informações do Laboratório</h2>
         
-        <button type="submit" class="btn btn-success btn-lg">Salvar Alterações</button>
-        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg">Cancelar</a>
+        <form method="POST">
+            <div class="card p-4 mb-4">
+                <h4 class="card-title">Informações Gerais do Laboratório</h4>
+                <div class="form-group mb-3">
+                    <label for="lab_name">Nome do Laboratório</label>
+                    <input type="text" class="form-control" id="lab_name" name="lab_name" value="{{ info.lab_name if info else '' }}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="affiliation">Afiliação/Vínculo</label>
+                    <input type="text" class="form-control" id="affiliation" name="affiliation" value="{{ info.affiliation if info else '' }}">
+                </div>
+            </div>
 
-    </form>
+            <div class="card p-4 mb-4">
+                <h4 class="card-title">Informações do Coordenador</h4>
+                <div class="form-group mb-3">
+                    <label for="coordinator_name">Nome do Coordenador</label>
+                    <input type="text" class="form-control" id="coordinator_name" name="coordinator_name" value="{{ info.coordinator_name if info else '' }}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="coordinator_email">Email do Coordenador</label>
+                    <input type="email" class="form-control" id="coordinator_email" name="coordinator_email" value="{{ info.coordinator_email if info else '' }}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="coordinator_lattes">Link do Lattes</label>
+                    <input type="url" class="form-control" id="coordinator_lattes" name="coordinator_lattes" value="{{ info.coordinator_lattes if info else '' }}">
+                </div>
+            </div>
+
+            <div class="card p-4 mb-4">
+                <h4 class="card-title">Localização</h4>
+                <div class="form-group mb-3">
+                    <label for="location">Localização (Unidade)</label>
+                    <input type="text" class="form-control" id="location" name="location" value="{{ info.location if info else '' }}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="address">Endereço Completo</label>
+                    <textarea class="form-control" id="address" name="address" rows="3">{{ info.address if info else '' }}</textarea>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success btn-lg me-2">Salvar Alterações</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg">Cancelar</a>
+
+        </form>
+    </div>
 </div>
 {% endblock %}
