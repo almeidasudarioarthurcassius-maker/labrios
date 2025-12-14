@@ -2,7 +2,8 @@ from app import app, db
 import sys
 
 # Script simples para criar as tabelas no banco de dados.
-# Usado no processo de build do Render.
+# Este script será executado pelo Render no passo de build, 
+# garantindo que o PostgreSQL esteja pronto antes de iniciar o servidor Gunicorn.
 
 try:
     with app.app_context():
@@ -12,5 +13,6 @@ try:
     sys.exit(0) # Sair com sucesso
     
 except Exception as e:
+    # Saída de erro caso a conexão ou criação falhe
     print(f"ERRO CRÍTICO ao inicializar o banco de dados: {e}", file=sys.stderr)
     sys.exit(1) # Sair com erro
