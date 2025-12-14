@@ -1,47 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Inventário Laboratório</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: white;
-            color: black;
-            text-align: center;
-        }
-        .header-box {
-            border: 1px solid #001f3f; /* Azul Marinho */
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 400px;
-            background-color: #f0f8ff; /* Fundo levemente azul para destaque */
-        }
-        .nav-button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #001f3f; /* Azul Marinho */
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        h2 {
-            color: #001f3f;
-        }
-    </style>
-</head>
-<body>
+<h2>{{ info.lab_name }}</h2>
 
-    <h2>Laboratório - Inventário</h2>
-    <div class="header-box">
-        <p>Coordenador: {{ info.name }}<br>Email: {{ info.email }}</p>
+<p>
+    **Afiliação:** {{ info.affiliation }}
+</p>
+
+<h3>Coordenador: {{ info.coordinator_name }}</h3>
+<ul>
+    <li>Email: {{ info.coordinator_email }}</li>
+    <li>Lattes: <a href="{{ info.coordinator_lattes }}" target="_blank">{{ info.coordinator_lattes }}</a></li>
+</ul>
+
+<h3>Localização</h3>
+<p>
+    **Unidade:** {{ info.location }}<br>
+    **Endereço:** {{ info.address }}
+</p>
+
+{% if session.get('admin') %}
+    <div class="mt-4">
+        <a href="{{ url_for('edit_info') }}" class="btn btn-warning">
+            <i class="fa fa-edit"></i> Editar Informações de Contato
+        </a>
     </div>
-
-    <a href='/inventory' class="nav-button">INVENTÁRIO</a>
-    <a href='/login' class="nav-button">LOGIN</a>
-
-    <p style="margin-top: 50px;">@Arthur Cassius – LTIP</p>
-
-</body>
-</html>
+{% endif %}
