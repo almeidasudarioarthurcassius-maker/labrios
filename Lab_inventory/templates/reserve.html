@@ -1,21 +1,65 @@
-<form method="POST">
-    <hr>
-    <h4>Dados de Contato (Obrigatórios)</h4>
+{% extends "base.html" %}
 
-    <div class="form-group">
-        <label for="email">Email de Contato (Obrigatório)</label>
-        <input type="email" class="form-control" id="email" name="email" required>
-    </div>
-    
-    <div class="form-group">
-        <label for="phone">Telefone de Contato</label>
-        <input type="text" class="form-control" id="phone" name="phone">
-    </div>
+{% block title %}Reservar {{ equipment.name }}{% endblock %}
 
-    <div class="form-group">
-        <label for="lattes_link">Link do Currículo Lattes</label>
-        <input type="url" class="form-control" id="lattes_link" name="lattes_link">
-    </div>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>Reservar Equipamento: {{ equipment.name }}</h2>
+        <p class="lead">Preencha seus dados para solicitar o uso do equipamento.</p>
 
-    <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
-</form>
+        {% if equipment.quantity <= 0 %}
+            <div class="alert alert-danger">Este equipamento não está disponível para reserva no momento.</div>
+        {% else %}
+            <form method="POST">
+                
+                <div class="card p-4 mb-4">
+                    <h4 class="card-title">Dados da Reserva</h4>
+                    <div class="form-group mb-3">
+                        <label for="date">Data de Uso (Dia, Mês e Ano)</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                </div>
+
+                <div class="card p-4 mb-4">
+                    <h4 class="card-title">Seus Dados de Identificação</h4>
+                    <div class="form-group mb-3">
+                        <label for="name">Seu Nome Completo (Obrigatório)</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="institution">Instituição</label>
+                        <input type="text" class="form-control" id="institution" name="institution" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="role">Cargo / Função</label>
+                        <input type="text" class="form-control" id="role" name="role" required>
+                    </div>
+                </div>
+
+                <div class="card p-4 mb-4">
+                    <h4 class="card-title">Dados de Contato e Pesquisa</h4>
+                    <div class="form-group mb-3">
+                        <label for="email">Email de Contato (Obrigatório)</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="phone">Telefone de Contato</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="lattes_link">Link do Currículo Lattes</label>
+                        <input type="url" class="form-control" id="lattes_link" name="lattes_link">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-custom-blue btn-lg">Confirmar Reserva</button>
+                <a href="{{ url_for('inventory') }}" class="btn btn-secondary btn-lg">Voltar ao Inventário</a>
+
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
