@@ -1,3 +1,4 @@
 Flask
 Flask-SQLAlchemy
-gunicorn  # Servidor WSGI recomendado para produção
+gunicorn
+psycopg2-binary  # Novo driver para PostgreSQL
