@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventário Laboratório</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: white;
+            color: black;
+            text-align: center;
+        }
+        .header-box {
+            border: 1px solid #001f3f; /* Azul Marinho */
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 400px;
+            background-color: #f0f8ff; /* Fundo levemente azul para destaque */
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #001f3f; /* Azul Marinho */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        h2 {
+            color: #001f3f;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Laboratório - Inventário</h2>
+    <div class="header-box">
+        <p>Coordenador: {{ info.name }}<br>Email: {{ info.email }}</p>
+    </div>
+
+    <a href='/inventory' class="nav-button">INVENTÁRIO</a>
+    <a href='/login' class="nav-button">LOGIN</a>
+
+    <p style="margin-top: 50px;">@Arthur Cassius – LTIP</p>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: white; color: black; }
+        h3 { color: #001f3f; margin-top: 30px; }
+        form { border: 1px solid #001f3f; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
+        input[type="text"], input[type="number"], input[type="file"] { margin-bottom: 10px; padding: 8px; width: 300px; display: block; }
+        button {
+            padding: 10px 20px;
+            background-color: #001f3f; /* Azul Marinho */
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .delete-button {
+            background-color: #cc0000; /* Vermelho para Excluir */
+            padding: 5px 10px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <h2>Área Administrativa</h2>
+    <a href='/'>Voltar</a> | <a href='/logout'>Sair</a>
+    
+    <h3>Cadastrar Novo Equipamento</h3>
+    <form method='post' enctype='multipart/form-data'>
+        Nome: <input type="text" name='name' required><br>
+        Marca: <input type="text" name='brand' required><br>
+        Modelo: <input type="text" name='model' required><br>
+        Finalidade: <input type="text" name='purpose' required><br>
+        Quantidade: <input type="number" name='quantity' required min="0"><br>
+        Imagem: <input type='file' name='image' accept="image/*"><br>
+        <button>Cadastrar</button>
+    </form>
+    
+    <h3>Equipamentos no Inventário ({{ equipments|length }})</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Marca/Modelo</th>
+                <th>Finalidade</th>
+                <th>Qtd.</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in equipments %}
+            <tr>
+                <td>{{ e.name }}</td>
+                <td>{{ e.brand }} / {{ e.model }}</td>
+                <td>{{ e.purpose }}</td>
+                <td>{{ e.quantity }}</td>
+                <td>
+                    <form method="POST" action="/delete/{{ e.id }}" style="display:inline;">
+                        <button type="submit" class="delete-button" onclick="return confirm('Tem certeza que deseja excluir {{ e.name }}?')">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h3>Reservas Recebidas ({{ reservations|length }})</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Equipamento (ID)</th>
+                <th>Nome do Usuário</th>
+                <th>Instituição/Cargo</th>
+                <th>Data da Reserva</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reservations %}
+            <tr>
+                <td>{{ r.equipment_id }}</td>
+                <td>{{ r.user_name }}</td>
+                <td>{{ r.institution }} / {{ r.role }}</td>
+                <td>{{ r.date }}</td>
+                <td>
+                    <form method="POST" action="/delete_reservation/{{ r.id }}" style="display:inline;">
+                        <button type="submit" class="delete-button" onclick="return confirm('Confirmar exclusão desta reserva?')">Concluída/Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</body>
+</html>

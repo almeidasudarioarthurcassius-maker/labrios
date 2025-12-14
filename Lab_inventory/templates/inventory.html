@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventário</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: white; color: black; }
+        .equipment-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .reserve-button {
+            padding: 8px 15px;
+            background-color: #001f3f; /* Azul Marinho */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .disabled-button {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Inventário</h2>
+    
+    {% for e in equipments %}
+    <div class="equipment-card">
+        <div>
+            {% if e.image %}
+            <img src='{{ url_for("static", filename="uploads/" + e.image) }}' width=100 alt="Imagem de {{ e.name }}">
+            {% else %}
+            <img src='{{ url_for("static", filename="no-image.png") }}' width=100 alt="Sem Imagem">
+            {% endif %}
+        </div>
+        <div>
+            <b>{{ e.name }}</b> - {{ e.brand }} - {{ e.model }}<br>
+            Finalidade: {{ e.purpose }} | Quantidade Disponível: <b>{{ e.quantity }}</b><br>
+            
+            {% if e.quantity > 0 %}
+            <a href='/reserve/{{ e.id }}' class="reserve-button">Reservar</a>
+            {% else %}
+            <span class="reserve-button disabled-button">Sem Estoque</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    
+    <hr>
+    <a href='/'>Voltar</a>
+
+</body>
+</html>
