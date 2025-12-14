@@ -47,7 +47,7 @@ class Reservation(db.Model):
     institution = db.Column(db.String(100))
     role = db.Column(db.String(100))
     date = db.Column(db.String(20), nullable=False)
-    # NOVOS CAMPOS SOLICITADOS PELO USUÁRIO EXTERNO
+    # NOVOS CAMPOS SOLICITADOS
     user_email = db.Column(db.String(100), nullable=False)
     user_phone = db.Column(db.String(50))
     lattes_link = db.Column(db.String(255))
@@ -55,7 +55,6 @@ class Reservation(db.Model):
 
 class LabInfo(db.Model):
     __tablename__ = 'lab_info'
-    # Esta tabela armazena os dados de contato do laboratório, com apenas 1 registro (id=1)
     id = db.Column(db.Integer, primary_key=True) 
     lab_name = db.Column(db.String(255))
     affiliation = db.Column(db.String(255))
@@ -69,7 +68,7 @@ class LabInfo(db.Model):
 
 @app.route('/')
 def index():
-    # Obtém as informações do laboratório do banco de dados (o registro com id=1 é o padrão)
+    # Obtém as informações do laboratório do banco de dados
     lab_info = LabInfo.query.first()
     return render_template('index.html', info=lab_info)
 
@@ -98,7 +97,7 @@ def reserve(id):
             lattes_link=request.form.get('lattes_link')
         )
         
-        # Validação aprimorada, garantindo que o email é obrigatório
+        # Validação de campos obrigatórios
         if not all([r.user_name, r.institution, r.role, r.date, r.user_email]):
              return "Campos obrigatórios (Nome, Instituição, Cargo, Data, Email) devem ser preenchidos.", 400
 
@@ -174,7 +173,6 @@ def admin():
             
     # GET: Exibe a interface de admin
     equipments = Equipment.query.all()
-    # Puxa todas as reservas, incluindo os novos campos de contato
     reservations = Reservation.query.all() 
     
     return render_template('admin.html', equipments=equipments, reservations=reservations)
@@ -186,25 +184,25 @@ def edit_info():
     if not session.get('admin'):
         return redirect(url_for('login'))
     
-    # Obtém o único registro de LabInfo. Ele é garantido pelo init_db.py
+    # Obtém o único registro de LabInfo. Se não existir (erro no init), cria um vazio.
     info = LabInfo.query.first()
+    if not info:
+        info = LabInfo()
+        db.session.add(info)
+        db.session.commit()
     
     if request.method == 'POST':
-        if info:
-            info.lab_name = request.form.get('lab_name')
-            info.affiliation = request.form.get('affiliation')
-            info.coordinator_name = request.form.get('coordinator_name')
-            info.coordinator_email = request.form.get('coordinator_email')
-            info.coordinator_lattes = request.form.get('coordinator_lattes')
-            info.location = request.form.get('location')
-            info.address = request.form.get('address')
+        info.lab_name = request.form.get('lab_name')
+        info.affiliation = request.form.get('affiliation')
+        info.coordinator_name = request.form.get('coordinator_name')
+        info.coordinator_email = request.form.get('coordinator_email')
+        info.coordinator_lattes = request.form.get('coordinator_lattes')
+        info.location = request.form.get('location')
+        info.address = request.form.get('address')
+        
+        db.session.commit()
+        return redirect(url_for('index'))
             
-            db.session.commit()
-            return redirect(url_for('index'))
-        else:
-            return "Erro: Informações do Laboratório não encontradas. Tente refazer o deploy.", 500
-            
-    # GET: Exibe o formulário de edição (você precisará criar este template)
     return render_template('edit_info.html', info=info)
 
 
