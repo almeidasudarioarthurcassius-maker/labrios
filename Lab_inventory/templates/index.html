@@ -11,14 +11,14 @@
 
         <div class="card shadow-sm p-4 mb-5 border-custom-blue">
             <div class="card-body">
-                <h4 class="card-title">{{ info.lab_name }}</h4>
-                <p><strong>Vínculo:</strong> {{ info.affiliation }}</p>
+                <h4 class="card-title">{{ info.lab_name if info else 'Nome do Laboratório (Aguardando Configuração)' }}</h4>
+                <p><strong>Vínculo:</strong> {{ info.affiliation if info else 'N/A' }}</p>
                 <hr>
                 
-                <p><strong>Coordenador:</strong> {{ info.coordinator_name }}</p>
-                <p><strong>Email:</strong> <a href="mailto:{{ info.coordinator_email }}">{{ info.coordinator_email }}</a></p>
+                <p><strong>Coordenador:</strong> {{ info.coordinator_name if info else 'N/A' }}</p>
+                <p><strong>Email:</strong> <a href="mailto:{{ info.coordinator_email if info else '#' }}">{{ info.coordinator_email if info else 'N/A' }}</a></p>
                 
-                {% if info.coordinator_lattes %}
+                {% if info and info.coordinator_lattes %}
                     <p><strong>Lattes:</strong> <a href="{{ info.coordinator_lattes }}" target="_blank">Acessar Lattes</a></p>
                 {% endif %}
 
