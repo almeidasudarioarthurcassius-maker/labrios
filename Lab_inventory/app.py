@@ -47,7 +47,6 @@ class Reservation(db.Model):
     institution = db.Column(db.String(100))
     role = db.Column(db.String(100))
     date = db.Column(db.String(20), nullable=False)
-    # NOVOS CAMPOS SOLICITADOS
     user_email = db.Column(db.String(100), nullable=False)
     user_phone = db.Column(db.String(50))
     lattes_link = db.Column(db.String(255))
@@ -68,7 +67,6 @@ class LabInfo(db.Model):
 
 @app.route('/')
 def index():
-    # Obtém as informações do laboratório do banco de dados
     lab_info = LabInfo.query.first()
     return render_template('index.html', info=lab_info)
 
@@ -91,13 +89,11 @@ def reserve(id):
             institution=request.form.get('institution'),
             role=request.form.get('role'),
             date=request.form.get('date'),
-            # NOVOS DADOS
             user_email=request.form.get('email'),
             user_phone=request.form.get('phone'),
             lattes_link=request.form.get('lattes_link')
         )
         
-        # Validação de campos obrigatórios
         if not all([r.user_name, r.institution, r.role, r.date, r.user_email]):
              return "Campos obrigatórios (Nome, Instituição, Cargo, Data, Email) devem ser preenchidos.", 400
 
@@ -180,12 +176,11 @@ def admin():
 
 @app.route('/admin/edit_info', methods=['GET', 'POST'])
 def edit_info():
-    # Rota para editar as informações de contato do laboratório
     if not session.get('admin'):
         return redirect(url_for('login'))
     
-    # Obtém o único registro de LabInfo. Se não existir (erro no init), cria um vazio.
     info = LabInfo.query.first()
+    # Cria o registro se ele não existir (garantia, mesmo que init_db deva tê-lo feito)
     if not info:
         info = LabInfo()
         db.session.add(info)
